@@ -2,6 +2,8 @@ import { Text, TextInput, Pressable, View, StyleSheet } from 'react-native';
 import { useFormik } from 'formik';
 import * as yup from 'yup'
 import useSignIn from '../hooks/useSignIn';
+import { useNavigate } from 'react-router-native'; // 👈 añade esto al principio
+import { useApolloClient } from '@apollo/client'; 
 
 const styles = StyleSheet.create({
   container: {
@@ -97,13 +99,21 @@ const SignInForm = ({ onSubmit }) => {
 
 const SignIn = () => {
   const [signIn] = useSignIn();
+  const navigate = useNavigate();
+  const apolloClient = useApolloClient(); 
+
 
   const onSubmit = async (values) => {
     const { username, password } = values;
 
     try {
-      const { authenticate } = await signIn({ username, password }); 
-      console.log('Access token:', authenticate.accessToken); 
+      const { authenticate } = await signIn({ username, password });
+
+      console.log('Access token:', authenticate.accessToken);
+
+      await apolloClient.resetStore();  
+      navigate('/');                    
+
     } catch (e) {
       console.log('Sign in error:', e);
     }

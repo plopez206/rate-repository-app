@@ -1,13 +1,11 @@
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import Constants from 'expo-constants';
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { ME } from '../../graphql/queries';
-import AppBarTab from './AppBarTab';
-import { useApolloClient } from '@apollo/client';
 import { useNavigate } from 'react-router-native';
 import useAuthStorage from '../../hooks/useAuthStorage';
-import  Text from '../Text';
-
+import AppBarTab from './AppBarTab';
+import Text from '../Text';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,8 +14,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingBottom: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
   },
+  signOutTab: {
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+  },
+  signOutText: {
+    color: '#ff5a5f', // rojo bonito, no demasiado agresivo
+    fontWeight: 'bold',
+    fontSize: 16,
+  }
 });
 
 const AppBar = () => {
@@ -27,16 +33,14 @@ const AppBar = () => {
   const navigate = useNavigate();
 
   if (loading) {
-    return null; // Puedes mostrar un spinner si quieres
+    return null;
   }
 
   const signOut = async () => {
     await authStorage.removeAccessToken();
     await apolloClient.resetStore();
     navigate('/', { replace: true });
-  }
-
-
+  };
 
   const signedIn = data?.me;
 
@@ -45,9 +49,13 @@ const AppBar = () => {
       <ScrollView horizontal>
         <AppBarTab to="/">Repositories</AppBarTab>
         {signedIn ? (
-          <Pressable onPress={signOut}>
-            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16, paddingHorizontal: 20, paddingVertical: 10 }}>Sign Out</Text>
-          </Pressable>
+          <>
+            <AppBarTab to="/create-review">Create a review</AppBarTab>
+            <AppBarTab to="/my-reviews">My reviews</AppBarTab>
+            <Pressable onPress={signOut} style={styles.signOutTab}>
+              <Text style={styles.signOutText}>Sign Out</Text>
+            </Pressable>
+          </>
         ) : (
           <AppBarTab to="/signin">Sign In</AppBarTab>
         )}
